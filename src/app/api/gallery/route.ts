@@ -4,6 +4,8 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
