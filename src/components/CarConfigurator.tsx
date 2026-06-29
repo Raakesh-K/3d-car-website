@@ -101,7 +101,7 @@ export default function CarConfigurator() {
       <div className="w-full md:w-2/3 h-[50vh] md:h-full relative cursor-grab active:cursor-grabbing">
         <Canvas shadows dpr={[1, 2]} camera={{ position: [5, 3, 6], fov: 45 }}>
           <Suspense fallback={null}>
-            <Stage environment="city" intensity={0.6} contactShadow={{ opacity: 0.8, blur: 2 }}>
+            <Stage environment="city" intensity={0.6} shadows>
               <ConfigurableCar config={config} />
             </Stage>
             <OrbitControls
