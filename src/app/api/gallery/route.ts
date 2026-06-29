@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-import { randomUUID } from 'crypto';
 
 export const dynamic = 'force-dynamic';
+
+// In-memory store for demo purposes
+let mockImages = [
+  {
+    id: '1',
+    url: 'https://images.unsplash.com/photo-1614200187524-dc4b892acf16?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    altText: 'Demo Image 1',
+    createdAt: new Date().toISOString()
+  }
+];
 
 export async function POST(request: Request) {
   try {
@@ -15,29 +21,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Save to public/uploads
-    const ext = file.name.split('.').pop() || 'jpg';
-    const filename = `${randomUUID()}.${ext}`;
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
+    // Since we are mocking the filesystem write, we won't actually save the file bytes.
+    // We will just generate a mock image object. 
+    // In a real application, you'd upload this to S3, Cloudinary, etc.
+    const image = {
+      id: Math.random().toString(36).substr(2, 9),
+      // Using a placeholder image for demo since we can't save files on Netlify read-only filesystem
+      url: 'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      altText: file.name,
+      createdAt: new Date().toISOString()
+    };
     
-    // Ensure directory exists
-    try {
-      await import('fs/promises').then(fs => fs.mkdir(uploadDir, { recursive: true }));
-    } catch (e) {
-      // Ignore if exists
-    }
-
-    const path = join(uploadDir, filename);
-    await writeFile(path, buffer);
-
-    // Save to database
-    const imageUrl = `/uploads/${filename}`;
-    const image = await prisma.galleryImage.create({
-      data: { url: imageUrl, altText: file.name },
-    });
+    mockImages.unshift(image);
 
     return NextResponse.json({ success: true, image }, { status: 201 });
   } catch (error) {
@@ -48,10 +43,7 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const images = await prisma.galleryImage.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    return NextResponse.json({ success: true, images }, { status: 200 });
+    return NextResponse.json({ success: true, images: mockImages }, { status: 200 });
   } catch (error) {
     console.error('Error fetching gallery images:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

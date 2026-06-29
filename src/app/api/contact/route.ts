@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
+
+// In-memory store for demo purposes (resets when serverless function spins down)
+let mockContacts: any[] = [];
 
 export async function POST(request: Request) {
   try {
@@ -12,9 +14,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const contact = await prisma.contactMessage.create({
-      data: { name, phone, service },
-    });
+    const contact = {
+      id: Math.random().toString(36).substr(2, 9),
+      name,
+      phone,
+      service,
+      createdAt: new Date().toISOString(),
+    };
+    
+    mockContacts.unshift(contact);
 
     return NextResponse.json({ success: true, contact }, { status: 201 });
   } catch (error) {
@@ -25,10 +33,7 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const contacts = await prisma.contactMessage.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-    return NextResponse.json({ success: true, contacts }, { status: 200 });
+    return NextResponse.json({ success: true, contacts: mockContacts }, { status: 200 });
   } catch (error) {
     console.error('Error fetching contact messages:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -44,9 +49,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
     }
 
-    await prisma.contactMessage.delete({
-      where: { id },
-    });
+    mockContacts = mockContacts.filter(c => c.id !== id);
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
@@ -64,12 +67,13 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    const updatedContact = await prisma.contactMessage.update({
-      where: { id },
-      data: { name, phone, service },
-    });
+    const index = mockContacts.findIndex(c => c.id === id);
+    if (index > -1) {
+      mockContacts[index] = { ...mockContacts[index], name, phone, service };
+      return NextResponse.json({ success: true, contact: mockContacts[index] }, { status: 200 });
+    }
 
-    return NextResponse.json({ success: true, contact: updatedContact }, { status: 200 });
+    return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
   } catch (error) {
     console.error('Error updating contact message:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
