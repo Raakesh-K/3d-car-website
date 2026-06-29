@@ -1,0 +1,11 @@
+Model Information:
+* title:	Lamborgini Aventador
+* source:	https://sketchfab.com/3d-models/lamborgini-aventador-03142e55d2b1402db12d782155279c3b
+* author:	freekadelka (https://sketchfab.com/Dmitry.Kovalevsky)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Lamborgini Aventador" (https://sketchfab.com/3d-models/lamborgini-aventador-03142e55d2b1402db12d782155279c3b) by freekadelka (https://sketchfab.com/Dmitry.Kovalevsky) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
